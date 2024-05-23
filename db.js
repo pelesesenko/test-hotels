@@ -1,30 +1,91 @@
-const users = [];
-let lastId = 0;
+import sqlite3 from 'sqlite3';
+const db = new (sqlite3.verbose().Database)('myDb.db');
+
+db.run(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  age INTEGER NOT NULL
+)`);
 
 export default {
-  getUsers() {
-    return users;
+  async getUsers() {
+    try {
+      const users = await new Promise((res, rej) => {
+        db.all('SELECT * FROM users', [], (err, rows) => {
+          if (err) {
+            rej(err);
+          } else {
+            res(rows);
+          }
+        });
+      });
+      return users;
+    } catch {
+      return null;
+    }
   },
-  getUserById(id) {
-    return users.find((user) => user.id === id);
+  async getUserById(id) {
+    try {
+      const user = await new Promise((res, rej) => {
+        db.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
+          if (err) {
+            rej(err);
+          } else {
+            res(row);
+          }
+        });
+      });
+      return user;
+    } catch {
+      return null;
+    }
   },
-  addUser(data) {
-    const newUser = {id: ++lastId, ...data};
-    users.push(newUser);
-    return newUser;
+  async addUser(data) {
+    try {
+      const id = await new Promise((res, rej) => {
+        db.run('INSERT INTO users (name, age) VALUES (?, ?)', [data.name, data.age], function (err) {
+          if (err) {
+            rej(err);
+          } else {
+            res(this.lastID);
+          }
+        });
+      });
+      return {id, ...data};
+    } catch {
+      return null;
+    }
   },
-  updateUser(id, data) {
-    let index;
-    const oldUser = users.find((user, i) => ((index = i), user.id === id));
-    if (!oldUser) return null;
-    const newUser = Object.assign(oldUser, data);
-    users.splice(index, 1, newUser);
-    return newUser;
+  async updateUser(id, data) {
+    try {
+      const changes = await new Promise(function (res, rej) {
+        db.run('UPDATE users SET name = ?, age = ? WHERE id = ?', [data.name, data.age, id], function (err) {
+          if (err) {
+            rej(err);
+          } else {
+            res(this.changes);
+          }
+        });
+      });
+      return changes === 0 ? null : this.getUserById(id);
+    } catch {
+      return null;
+    }
   },
-  deleteUser(id) {
-    const index = users.findIndex((user) => user.id === id);
-    if (index === -1) return false;
-    users.splice(index, 1);
-    return true;
+  async deleteUser(id) {
+    try {
+      const changes = await new Promise((res, rej) => {
+        db.run('DELETE FROM users WHERE id = ?', [id], function (err) {
+          if (err) {
+            rej(err);
+          } else {
+            res(this.changes);
+          }
+        });
+      });
+      return changes > 0;
+    } catch {
+      return false;
+    }
   },
 };

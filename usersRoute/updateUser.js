@@ -5,10 +5,10 @@ export default (req, res) => {
   req.on('data', (chunk) => {
     body += chunk;
   });
-  req.on('end', () => {
+  req.on('end', async () => {
     const data = JSON.parse(body);
     const id = parseInt(req.url.split('/')[2]);
-    const user = db.updateUser(id, data);
+    const user = await db.updateUser(id, data);
 
     res.writeHead(user ? 200 : 404);
     res.end(JSON.stringify(user ?? {message: 'User not found'}));

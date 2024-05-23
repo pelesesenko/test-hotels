@@ -2,5 +2,14 @@
   "type": "module",
   "scripts": {
     "start": "node server.js"
+  },
+  "name": "hotels",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "sqlite3": "^5.1.7"
   }
 }

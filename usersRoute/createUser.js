@@ -6,14 +6,14 @@ export default (req, res) => {
   req.on('data', (chunk) => {
     body += chunk;
   });
-  req.on('end', () => {
+  req.on('end', async () => {
     const data = JSON.parse(body);
 
     if (!data.name || !data.age) {
       res.writeHead(400);
       res.end(getJsonError('Name and age are required'));
     } else {
-      const newUser = db.addUser(data);
+      const newUser = await db.addUser(data);
       res.writeHead(201);
       res.end(JSON.stringify(newUser));
     }
