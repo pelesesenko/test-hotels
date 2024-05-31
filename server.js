@@ -1,6 +1,12 @@
-import {createServer} from 'node:http';
+import express from 'express';
 import router from './router.js';
 
-const server = createServer(router);
+const PORT = 3000;
 
-server.listen(3000, () => console.log('server starts'));
+const server = express();
+
+server.use(express.static('static'));
+server.use(express.json());
+server.use(router);
+
+server.listen(PORT, () => console.log('server started on port ' + PORT));

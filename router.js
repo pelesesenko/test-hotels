@@ -1,12 +1,8 @@
-import userRoute from './usersRoute/usersRoute.js';
-import {parseUrl, getJsonError} from './utils.js';
+import userRouter from './usersRouter/usersRouter.js';
+import Router from 'express';
 
-export default (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  const path = parseUrl(req.url).pathname;
-  if (path.startsWith('/users')) userRoute(req, res);
-  else {
-    res.writeHead(404);
-    res.end(getJsonError('Route not found'));
-  }
-};
+const router = new Router();
+
+router.use('/users', userRouter);
+
+export default router;
